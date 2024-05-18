@@ -9,6 +9,7 @@ TagManager:
   - BLOCK
   - BLOCK_S
   - BLOCK_U
+  - PLATFORM
   layers:
   - Default
   - TransparentFX

@@ -143,7 +143,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!54 &250961249
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -251,6 +251,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   initialSpeed: 20
+  powerMat: {fileID: 0}
 --- !u!1 &687147617
 GameObject:
   m_ObjectHideFlags: 0
@@ -567,6 +568,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e6cb2ac17c8cab4439d855d65dc83fac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  bmat: {fileID: 2100000, guid: 3eb203f2baa5cf84ca11ba90f0cf6e1d, type: 2}
+  umat: {fileID: 2100000, guid: 6cb99c9738aadad468905d7e2de747d4, type: 2}
   lines:
   - BBBBBBBBBBB
   - .BBBBBBBBBB
@@ -575,7 +578,7 @@ MonoBehaviour:
   - 
   - 
   - .--UB--BU--
-  - 
+  - BBB
 --- !u!1 &1063320106
 GameObject:
   m_ObjectHideFlags: 0
@@ -768,7 +771,7 @@ GameObject:
   - component: {fileID: 1420281985}
   m_Layer: 0
   m_Name: Platform
-  m_TagString: Untagged
+  m_TagString: PLATFORM
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
