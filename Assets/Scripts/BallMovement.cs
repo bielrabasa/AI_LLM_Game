@@ -39,6 +39,8 @@ public class BallMovement : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
+        rb.velocity = rb.velocity.normalized * initialSpeed;
+
         //Platform
         if (collision.gameObject.CompareTag("PLATFORM"))
         {
@@ -75,18 +77,17 @@ public class BallMovement : MonoBehaviour
 
     void HandleChaotic()
     {
-        rb.velocity = rb.velocity.normalized * initialSpeed;
         rb.velocity *= Random.Range(0.5f, 2f);
     }
 
     void RearangeBricks()
     {
-        Debug.Log("Rearange");
+        //Debug.Log("Rearange");
         FindObjectOfType<LayoutScript>().RearangeBricks();
     }
     void ShootRay()
     {
-        Debug.Log("Shoot");
+        //Debug.Log("Shoot");
         StartCoroutine(Ray());
     }
 
@@ -98,7 +99,7 @@ public class BallMovement : MonoBehaviour
 
     void ChaosMode()
     {
-        Debug.Log("Chaos");
+        //Debug.Log("Chaos");
         StartCoroutine(Chaotic());
     }
 
@@ -114,7 +115,7 @@ public class BallMovement : MonoBehaviour
 
     void ExplosiveMode()
     {
-        Debug.Log("Explosive");
+        //Debug.Log("Explosive");
         StartCoroutine(Explosive());
     }
 
