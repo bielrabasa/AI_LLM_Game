@@ -33,7 +33,10 @@ public class BallMovement : MonoBehaviour
         mat = GetComponent<Renderer>().material;
 
         // Start the ball movement with a random direction
-        Vector3 initialDirection = new Vector2(Random.Range(-1f, 1f), 1f).normalized;
+        //TODO: Uncomment
+        //Vector3 initialDirection = new Vector2(Random.Range(-1f, 1f), 1f).normalized;
+        Vector3 initialDirection = new Vector2(0f, -1f).normalized;
+
         rb.velocity = initialDirection * initialSpeed;
     }
 
@@ -42,19 +45,11 @@ public class BallMovement : MonoBehaviour
         rb.velocity = rb.velocity.normalized * initialSpeed;
 
         //Platform
-        if (collision.gameObject.CompareTag("PLATFORM"))
-        {
-            if (carrying != 0)
-            {
-                ability[carrying - 1]();
-                carrying = 0;
-
-                GetComponent<Renderer>().material = mat;
-            }
-        }
+        if (collision.gameObject.CompareTag("PLATFORM")) CheckPlatformCollision(collision);
+        
 
         if(isExplosive) HandleExplosive();
-        if(isChaotic) HandleChaotic();
+        //if(isChaotic) HandleChaotic(); TODO: UNCOMMENT
 
         //Break Blocks
         if (collision.gameObject.CompareTag("BLOCK"))
@@ -68,6 +63,25 @@ public class BallMovement : MonoBehaviour
             carrying = Random.Range(1, 5);
             Destroy(collision.gameObject);
         }
+    }
+
+    private void CheckPlatformCollision(Collision collision)
+    {
+        if (carrying != 0)
+        {
+            ability[carrying - 1]();
+            carrying = 0;
+
+            GetComponent<Renderer>().material = mat;
+        }
+
+        //Redirect ball
+        float contactPos = (transform.position.x - collision.transform.position.x) / 3f; // btw(-1, 1)
+
+        float angle = 80f * contactPos * Mathf.Deg2Rad;
+        Vector3 departure = new Vector3(Mathf.Sin(angle), Mathf.Cos(angle), 0);
+
+        rb.velocity = departure.normalized * initialSpeed;
     }
 
     void HandleExplosive()
