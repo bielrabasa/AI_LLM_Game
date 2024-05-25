@@ -6,8 +6,6 @@ using UnityEngine;
 
 public class BallMovement : MonoBehaviour
 {
-    delegate void AbilityActivation();
-    List<AbilityActivation> ability = new List<AbilityActivation>();
     int carrying = 0;
     bool isExplosive = false;
     bool isChaotic = false;
@@ -18,16 +16,13 @@ public class BallMovement : MonoBehaviour
     Material mat;
     public Material powerMat;
 
+    public GameObject explosion;
+
     void Start()
     {
         carrying = 0;
         isExplosive = false;
         isChaotic = false;
-        ability.Clear();
-        ability.Add(RearangeBricks);
-        ability.Add(ShootRay);
-        ability.Add(ChaosMode);
-        ability.Add(ExplosiveMode);
 
         rb = GetComponent<Rigidbody>();
         mat = GetComponent<Renderer>().material;
@@ -45,11 +40,15 @@ public class BallMovement : MonoBehaviour
         rb.velocity = rb.velocity.normalized * initialSpeed;
 
         //Platform
-        if (collision.gameObject.CompareTag("PLATFORM")) CheckPlatformCollision(collision);
-        
+        if (collision.gameObject.CompareTag("PLATFORM"))
+        {
+            CheckPlatformCollision(collision);
+            return;
+        }
 
+        //Check for abilities on collision
         if(isExplosive) HandleExplosive();
-        //if(isChaotic) HandleChaotic(); TODO: UNCOMMENT
+        if(isChaotic) HandleChaotic();
 
         //Break Blocks
         if (collision.gameObject.CompareTag("BLOCK"))
@@ -60,20 +59,14 @@ public class BallMovement : MonoBehaviour
         {
             GetComponent<Renderer>().material = powerMat;
 
-            carrying = Random.Range(1, 5);
+            carrying = 3;//Random.Range(1, 5);  //TODO: UNcomment
             Destroy(collision.gameObject);
         }
     }
 
     private void CheckPlatformCollision(Collision collision)
     {
-        if (carrying != 0)
-        {
-            ability[carrying - 1]();
-            carrying = 0;
-
-            GetComponent<Renderer>().material = mat;
-        }
+        CheckAbilities();
 
         //Redirect ball
         float contactPos = (transform.position.x - collision.transform.position.x) / 3f; // btw(-1, 1)
@@ -84,9 +77,48 @@ public class BallMovement : MonoBehaviour
         rb.velocity = departure.normalized * initialSpeed;
     }
 
+    private void CheckAbilities()
+    {
+        //In case of repeating ability, skip to instant ones
+        if (carrying == 1 && isChaotic) carrying++;
+        if (carrying == 3 && isExplosive) carrying++;
+
+        switch (carrying)
+        {
+            case 1:
+                {
+                    StartCoroutine(ChaosMode());
+                    break;
+                }
+            case 2:
+                {
+                    RearangeBricks(); 
+                    break;
+                }
+            case 3:
+                {
+                    StartCoroutine(ExplosiveMode());
+                    break;
+                }
+            case 4:
+                {
+                    StartCoroutine(ShootRay());
+                    break;
+                }
+            default:
+                return;
+        }
+
+        carrying = 0;
+        GetComponent<Renderer>().material = mat;
+    }
+
+    //---------------- HANDLE ABILITIES ----------------------
+
     void HandleExplosive()
     {
-        //TODO: Create big ball that breaks bricks arround & doesn't collide with current ball
+        //TODO: Make explosion particles
+        Instantiate(explosion, transform.position, Quaternion.identity);
     }
 
     void HandleChaotic()
@@ -94,47 +126,33 @@ public class BallMovement : MonoBehaviour
         rb.velocity *= Random.Range(0.5f, 2f);
     }
 
+
+    //---------------- ACTIVATE ABILITIES ----------------------
+
     void RearangeBricks()
     {
         //Debug.Log("Rearange");
         FindObjectOfType<LayoutScript>().RearangeBricks();
     }
-    void ShootRay()
-    {
-        //Debug.Log("Shoot");
-        StartCoroutine(Ray());
-    }
 
-    IEnumerator Ray()
+    IEnumerator ShootRay()
     {
         yield return new WaitForSeconds(0.1f);
         //TODO: Shoot
     }
 
-    void ChaosMode()
+    IEnumerator ChaosMode()
     {
-        //Debug.Log("Chaos");
-        StartCoroutine(Chaotic());
-    }
-
-    IEnumerator Chaotic()
-    {
+        //TODO: Indicate ability
         isChaotic = true;
-
         yield return new WaitForSeconds(10);
-
         isChaotic = false;
         rb.velocity = rb.velocity.normalized * initialSpeed; //Return to normal vel
     }
 
-    void ExplosiveMode()
+    IEnumerator ExplosiveMode()
     {
-        //Debug.Log("Explosive");
-        StartCoroutine(Explosive());
-    }
-
-    IEnumerator Explosive()
-    {
+        //TODO: Indicate ability
         isExplosive = true;
         yield return new WaitForSeconds(10);
         isExplosive = false;
