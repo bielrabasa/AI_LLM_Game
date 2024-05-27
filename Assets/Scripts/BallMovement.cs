@@ -59,7 +59,7 @@ public class BallMovement : MonoBehaviour
         {
             GetComponent<Renderer>().material = powerMat;
 
-            carrying = 3;//Random.Range(1, 5);  //TODO: UNcomment
+            carrying = 4;//Random.Range(1, 5);  //TODO: UNcomment
             Destroy(collision.gameObject);
         }
     }
@@ -80,8 +80,7 @@ public class BallMovement : MonoBehaviour
     private void CheckAbilities()
     {
         //In case of repeating ability, skip to instant ones
-        if (carrying == 1 && isChaotic) carrying++;
-        if (carrying == 3 && isExplosive) carrying++;
+        if ((carrying == 1 && isChaotic) || (carrying == 3 && isExplosive)) carrying++;
 
         switch (carrying)
         {
@@ -102,7 +101,7 @@ public class BallMovement : MonoBehaviour
                 }
             case 4:
                 {
-                    StartCoroutine(ShootRay());
+                    ShootRay();
                     break;
                 }
             default:
@@ -135,10 +134,9 @@ public class BallMovement : MonoBehaviour
         FindObjectOfType<LayoutScript>().RearangeBricks();
     }
 
-    IEnumerator ShootRay()
+    void ShootRay()
     {
-        yield return new WaitForSeconds(0.1f);
-        //TODO: Shoot
+        GameObject.CreatePrimitive(PrimitiveType.Cube).AddComponent<RayScript>();
     }
 
     IEnumerator ChaosMode()
