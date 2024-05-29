@@ -251,6 +251,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   initialSpeed: 20
+  speedIncrease: 0.2
   powerMat: {fileID: 0}
   explosion: {fileID: 3264970915789018689, guid: f02c9df782bc858439548817533c26d8, type: 3}
 --- !u!1 &687147617
@@ -836,7 +837,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1cb889d96e56959499a1080378926330, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 20
+  speed: 25
   maxX: 14.3
 --- !u!1 &1659674473
 GameObject:

@@ -19,6 +19,7 @@ public class ExplosionScript : MonoBehaviour
             collision.gameObject.CompareTag("BLOCK_U"))
         {
             Destroy(collision.gameObject);
+            FindObjectOfType<BallMovement>().IncreaseSpeed();
         }
     }
 }

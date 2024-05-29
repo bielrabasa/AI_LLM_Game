@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEditorInternal;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class BallMovement : MonoBehaviour
 {
@@ -11,32 +12,61 @@ public class BallMovement : MonoBehaviour
     bool isChaotic = false;
 
     public float initialSpeed = 5f;
+    public float speedIncrease = 0.2f;
     Rigidbody rb;
+
+    public int lives = 5;
 
     Material mat;
     public Material powerMat;
 
     public GameObject explosion;
 
+    Vector3 initialPos;
+
     void Start()
     {
-        carrying = 0;
-        isExplosive = false;
-        isChaotic = false;
-
         rb = GetComponent<Rigidbody>();
         mat = GetComponent<Renderer>().material;
 
-        // Start the ball movement with a random direction
-        //TODO: Uncomment
-        //Vector3 initialDirection = new Vector2(Random.Range(-1f, 1f), 1f).normalized;
-        Vector3 initialDirection = new Vector2(0f, -1f).normalized;
+        initialPos = transform.position;
+        StartCoroutine(InitShoot());
+    }
 
+    IEnumerator InitShoot()
+    {
+        //ResetValues
+        carrying = 0;
+        isExplosive = false;
+        isChaotic = false;
+        GetComponent<Renderer>().material = mat;
+
+        //Reset Ball pos & direction
+        transform.position = initialPos;
+        rb.velocity = Vector3.zero;
+
+        yield return new WaitForSeconds(2);
+
+        Vector3 initialDirection = new Vector2(Random.Range(-1f, 1f), 1f).normalized;
         rb.velocity = initialDirection * initialSpeed;
+    }
+
+    public void IncreaseSpeed()
+    {
+        initialSpeed += speedIncrease;
     }
 
     private void OnCollisionEnter(Collision collision)
     {
+        if (collision.gameObject.CompareTag("LOSE"))
+        {
+            lives--;
+            StartCoroutine(InitShoot());
+
+            //SceneManager.LoadScene("MainScene");
+            return;
+        }
+
         rb.velocity = rb.velocity.normalized * initialSpeed;
 
         //Platform
@@ -54,13 +84,16 @@ public class BallMovement : MonoBehaviour
         if (collision.gameObject.CompareTag("BLOCK"))
         {
             Destroy(collision.gameObject);
+            IncreaseSpeed();
         }
         else if (collision.gameObject.CompareTag("BLOCK_S"))
         {
             GetComponent<Renderer>().material = powerMat;
 
-            carrying = 4;//Random.Range(1, 5);  //TODO: UNcomment
+            carrying = Random.Range(1, 5);
             Destroy(collision.gameObject);
+            
+            IncreaseSpeed();
         }
     }
 
@@ -76,6 +109,8 @@ public class BallMovement : MonoBehaviour
 
         rb.velocity = departure.normalized * initialSpeed;
     }
+
+    //---------------- ABILITIES ----------------------
 
     private void CheckAbilities()
     {
@@ -154,5 +189,26 @@ public class BallMovement : MonoBehaviour
         isExplosive = true;
         yield return new WaitForSeconds(10);
         isExplosive = false;
+    }
+
+    //---------------Roger ABILITY-------------
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            StartCoroutine(ReDirection());
+        }
+    }
+
+    IEnumerator ReDirection()
+    {
+        Debug.Log("Random Ball");
+        rb.velocity = Vector3.zero;
+
+        yield return new WaitForSeconds(1);
+
+        rb.velocity = new Vector2(Random.Range(-1f,1), Random.Range(-1f, 1)).normalized 
+            * initialSpeed * Random.Range(1.2f, 3f);
     }
 }

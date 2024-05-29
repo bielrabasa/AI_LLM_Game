@@ -11,7 +11,7 @@ public class RayScript : MonoBehaviour
     {
         platform = GameObject.FindGameObjectWithTag("PLATFORM").transform;
         transform.position = new Vector3(platform.position.x, 18.5f, -0.5f);
-        transform.localScale = new Vector3(0.2f, 30, 3);
+        transform.localScale = new Vector3(0.0f, 30, 3);
         transform.parent = platform;
         gameObject.layer = 6;
         GetComponent<Collider>().enabled = false;
@@ -50,6 +50,7 @@ public class RayScript : MonoBehaviour
             collision.gameObject.CompareTag("BLOCK_U"))
         {
             Destroy(collision.gameObject);
+            FindObjectOfType<BallMovement>().IncreaseSpeed();
         }
     }
 }
