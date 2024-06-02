@@ -8,25 +8,41 @@ public class LayoutScript : MonoBehaviour
 {
     public Material bmat;
     public Material umat;
-    public string[] lines = new string[8];
+    public Transform blockContainer;
+
     int uBlocks = 0;
+    int levelCharged = -1;
 
     void Start()
     {
+        LoadLevel(0);
+    }
+
+    private void LoadLevel(int num)
+    {
+        foreach (Transform child in blockContainer) 
+        {
+            Destroy(child.gameObject);
+        }
+
         uBlocks = 0;
 
+        var lines = transform.GetChild(num).GetComponent<LevelLayout>().lines;
+        levelCharged = num;
+
         Vector3 pos = new Vector3(-15, 30, 0);
-        foreach(string line in lines)
+        foreach (string line in lines)
         {
-            foreach(char c in line)
+            foreach (char c in line)
             {
                 if (c == '.') pos.x += 1.5f;
                 else if (c == '-') pos.x += 3f;
-                else if("BSU".Contains(c)){
+                else if ("BSU".Contains(c))
+                {
                     GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
                     cube.transform.position = pos;
                     cube.transform.localScale = new Vector3(2.5f, 1.2f, 1);
-                    cube.transform.parent = transform;
+                    cube.transform.parent = blockContainer;
                     pos.x += 3f;
                     cube.GetComponent<Renderer>().material = bmat;
 
@@ -47,16 +63,29 @@ public class LayoutScript : MonoBehaviour
 
     private void Update()
     {
-        if(transform.childCount <= uBlocks)
+        if(blockContainer.childCount <= uBlocks)
         {
-            for (int i = 0; i < transform.childCount; i++)
+            for (int i = 0; i < blockContainer.childCount; i++)
             {
-                if (transform.GetChild(i).CompareTag("BLOCK")) return;
+                Transform c = blockContainer.GetChild(i);
+                if (c.CompareTag("BLOCK") || c.CompareTag("BLOCK_S")) return;
             }
 
-            Debug.Log("Win");
-            SceneManager.LoadScene("MainScene");
+            Win();
         }
+    }
+
+    void Win()
+    {
+        Debug.Log("Win");
+
+        if(levelCharged + 1 == transform.childCount)
+        {
+            SceneManager.LoadScene("MainScene");
+            return;
+        }
+
+        LoadLevel(levelCharged + 1);
     }
 
     public void RearangeBricks()

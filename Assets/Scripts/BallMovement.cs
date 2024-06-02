@@ -30,6 +30,11 @@ public class BallMovement : MonoBehaviour
         mat = GetComponent<Renderer>().material;
 
         initialPos = transform.position;
+        ResetBall();
+    }
+
+    public void ResetBall()
+    {
         StartCoroutine(InitShoot());
     }
 
@@ -61,7 +66,7 @@ public class BallMovement : MonoBehaviour
         if (collision.gameObject.CompareTag("LOSE"))
         {
             lives--;
-            StartCoroutine(InitShoot());
+            ResetBall();
 
             //SceneManager.LoadScene("MainScene");
             return;
