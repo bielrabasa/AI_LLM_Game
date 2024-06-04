@@ -1,6 +1,7 @@
 using Newtonsoft.Json.Bson;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.InteropServices.WindowsRuntime;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -10,11 +11,14 @@ public class LayoutScript : MonoBehaviour
     public Material umat;
     public Transform blockContainer;
 
+    bool won = false;
+
     int uBlocks = 0;
     int levelCharged = -1;
 
     void Start()
     {
+        won = false;
         LoadLevel(0);
     }
 
@@ -59,10 +63,14 @@ public class LayoutScript : MonoBehaviour
             pos.x = -15;
             pos.y -= 2;
         }
+
+        won = false;
     }
 
     private void Update()
     {
+        if (won) return;
+
         if(blockContainer.childCount <= uBlocks)
         {
             for (int i = 0; i < blockContainer.childCount; i++)
@@ -77,7 +85,7 @@ public class LayoutScript : MonoBehaviour
 
     void Win()
     {
-        Debug.Log("Win");
+        won = true;
 
         if(levelCharged + 1 == transform.childCount)
         {
@@ -85,17 +93,22 @@ public class LayoutScript : MonoBehaviour
             return;
         }
 
-        LoadLevel(levelCharged + 1);
+        FindObjectOfType<BallMovement>().ResetBall(true);
+        StartCoroutine(WaitForLoadLevel(levelCharged + 1));
+    }
+
+    IEnumerator WaitForLoadLevel(int num)
+    {
+        yield return new WaitForSeconds(2);
+        LoadLevel(num);
     }
 
     public void RearangeBricks()
     {
         int vertical = Random.Range(0, 4);
 
-        for (int i = 0; i < transform.childCount; i++)
+        foreach (Transform child in blockContainer) 
         {
-            Transform child = transform.GetChild(i);
-
             if(vertical == 0 && vertical == 1)
             {
                 float y = child.position.y;

@@ -11,7 +11,8 @@ public class BallMovement : MonoBehaviour
     bool isExplosive = false;
     bool isChaotic = false;
 
-    public float initialSpeed = 5f;
+    public float realInitialSpeed = 20f;
+    float initialSpeed;
     public float speedIncrease = 0.2f;
     Rigidbody rb;
 
@@ -30,11 +31,13 @@ public class BallMovement : MonoBehaviour
         mat = GetComponent<Renderer>().material;
 
         initialPos = transform.position;
-        ResetBall();
+        ResetBall(true);
     }
 
-    public void ResetBall()
+    public void ResetBall(bool resetSpeed)
     {
+        if(resetSpeed) initialSpeed = realInitialSpeed;
+
         StartCoroutine(InitShoot());
     }
 
@@ -66,7 +69,7 @@ public class BallMovement : MonoBehaviour
         if (collision.gameObject.CompareTag("LOSE"))
         {
             lives--;
-            ResetBall();
+            ResetBall(false);
 
             //SceneManager.LoadScene("MainScene");
             return;
