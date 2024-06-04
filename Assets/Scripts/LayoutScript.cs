@@ -1,3 +1,4 @@
+using LLMUnity;
 using Newtonsoft.Json.Bson;
 using System.Collections;
 using System.Collections.Generic;
@@ -14,10 +15,15 @@ public class LayoutScript : MonoBehaviour
     bool won = false;
 
     int uBlocks = 0;
-    int levelCharged = -1;
+    public int levelCharged = -1;
+
+    LLM_Comunication llm;
+
 
     void Start()
     {
+        llm = FindObjectOfType<LLM_Comunication>();
+
         won = false;
         LoadLevel(0);
     }
@@ -73,10 +79,9 @@ public class LayoutScript : MonoBehaviour
 
         if(blockContainer.childCount <= uBlocks)
         {
-            for (int i = 0; i < blockContainer.childCount; i++)
+            foreach (Transform child in blockContainer)
             {
-                Transform c = blockContainer.GetChild(i);
-                if (c.CompareTag("BLOCK") || c.CompareTag("BLOCK_S")) return;
+                if (child.CompareTag("BLOCK") || child.CompareTag("BLOCK_S")) return;
             }
 
             Win();
@@ -89,7 +94,7 @@ public class LayoutScript : MonoBehaviour
 
         if(levelCharged + 1 == transform.childCount)
         {
-            SceneManager.LoadScene("MainScene");
+            StartCoroutine(EndWaitBoss(true));
             return;
         }
 
@@ -101,6 +106,26 @@ public class LayoutScript : MonoBehaviour
     {
         yield return new WaitForSeconds(2);
         LoadLevel(num);
+    }
+
+    public void Lose()
+    {
+        StartCoroutine(EndWaitBoss(false));
+    }
+
+    IEnumerator EndWaitBoss(bool win)
+    {
+        var bm = FindObjectOfType<BallMovement>();
+
+        if (win) llm.BossTalk(bm.lives, 4);
+        else llm.BossTalk(0, -1);
+        
+        bm.gameObject.SetActive(false);
+        
+
+        while (llm.isWriting) yield return null;
+
+        SceneManager.LoadScene("MainScene");
     }
 
     public void RearangeBricks()

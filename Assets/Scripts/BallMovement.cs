@@ -25,8 +25,14 @@ public class BallMovement : MonoBehaviour
 
     Vector3 initialPos;
 
+    //LLM
+    LLM_Comunication llm;
+    LayoutScript level;
+
     void Start()
     {
+        llm = FindObjectOfType<LLM_Comunication>();
+        level = FindObjectOfType<LayoutScript>();
         rb = GetComponent<Rigidbody>();
         mat = GetComponent<Renderer>().material;
 
@@ -34,29 +40,49 @@ public class BallMovement : MonoBehaviour
         ResetBall(true);
     }
 
-    public void ResetBall(bool resetSpeed)
+    public void ResetBall(bool lvlChange)
     {
-        if(resetSpeed) initialSpeed = realInitialSpeed;
+        //Reset Ball pos & direction
+        transform.position = initialPos;
+        rb.velocity = Vector3.zero;
 
-        StartCoroutine(InitShoot());
+        ResetAbilities();
+
+        if (lvlChange)
+        {
+            initialSpeed = realInitialSpeed;
+            llm.BossTalk(lives, level.levelCharged + 1);
+            StartCoroutine(InitFirstShoot());
+        }
+        else
+        {
+            StartCoroutine(InitShoot());
+        }
     }
 
-    IEnumerator InitShoot()
+    void ResetAbilities()
     {
         //ResetValues
         carrying = 0;
         isExplosive = false;
         isChaotic = false;
         GetComponent<Renderer>().material = mat;
+    }
 
-        //Reset Ball pos & direction
-        transform.position = initialPos;
-        rb.velocity = Vector3.zero;
-
+    IEnumerator InitShoot()
+    {
         yield return new WaitForSeconds(2);
 
         Vector3 initialDirection = new Vector2(Random.Range(-1f, 1f), 1f).normalized;
         rb.velocity = initialDirection * initialSpeed;
+    }
+
+    IEnumerator InitFirstShoot()
+    {
+        while (llm.isWriting) yield return null;
+
+        yield return new WaitForSeconds(2);
+        BossAbility();
     }
 
     public void IncreaseSpeed()
@@ -69,9 +95,10 @@ public class BallMovement : MonoBehaviour
         if (collision.gameObject.CompareTag("LOSE"))
         {
             lives--;
-            ResetBall(false);
 
-            //SceneManager.LoadScene("MainScene");
+            if (lives > 0) ResetBall(false);
+            else level.Lose();
+
             return;
         }
 
@@ -173,18 +200,20 @@ public class BallMovement : MonoBehaviour
 
     void RearangeBricks()
     {
-        //Debug.Log("Rearange");
+        AbilityMessage("Rearange!");
         FindObjectOfType<LayoutScript>().RearangeBricks();
     }
 
     void ShootRay()
     {
+        AbilityMessage("You have rays?");
         GameObject.CreatePrimitive(PrimitiveType.Cube).AddComponent<RayScript>();
     }
 
     IEnumerator ChaosMode()
     {
-        //TODO: Indicate ability
+        AbilityMessage("Chaos!");
+
         isChaotic = true;
         yield return new WaitForSeconds(10);
         isChaotic = false;
@@ -193,20 +222,27 @@ public class BallMovement : MonoBehaviour
 
     IEnumerator ExplosiveMode()
     {
-        //TODO: Indicate ability
+        AbilityMessage("Explosive?");
         isExplosive = true;
         yield return new WaitForSeconds(10);
         isExplosive = false;
     }
 
-    //---------------Roger ABILITY-------------
-
-    private void Update()
+    void AbilityMessage(string m)
     {
-        if (Input.GetKeyDown(KeyCode.R))
-        {
-            StartCoroutine(ReDirection());
-        }
+        llm.ui.text = m;
+        StartCoroutine(EraseScreen());
+    }
+
+    IEnumerator EraseScreen()
+    {
+        yield return new WaitForSeconds(2);
+        llm.ui.text = "";
+    }
+
+    public void BossAbility()
+    {
+       StartCoroutine(ReDirection());
     }
 
     IEnumerator ReDirection()
@@ -216,7 +252,7 @@ public class BallMovement : MonoBehaviour
 
         yield return new WaitForSeconds(1);
 
-        rb.velocity = new Vector2(Random.Range(-1f,1), Random.Range(-1f, 1)).normalized 
-            * initialSpeed * Random.Range(1.2f, 3f);
+        rb.velocity = new Vector2(Random.Range(-1f,1), Random.Range(0.1f, 1)).normalized
+            * initialSpeed * Random.Range(2f, 3f);
     }
 }
