@@ -17,11 +17,12 @@ public class BallMovement : MonoBehaviour
     Rigidbody rb;
 
     public int lives = 5;
+    [SerializeField] Transform livesContainer;
 
     Material mat;
-    public Material powerMat;
+    [SerializeField] Material powerMat;
 
-    public GameObject explosion;
+    [SerializeField] GameObject explosion;
 
     Vector3 initialPos;
 
@@ -95,6 +96,7 @@ public class BallMovement : MonoBehaviour
         if (collision.gameObject.CompareTag("LOSE"))
         {
             lives--;
+            Destroy(livesContainer.GetChild(0).gameObject);
 
             if (lives > 0) ResetBall(false);
             else level.Lose();
