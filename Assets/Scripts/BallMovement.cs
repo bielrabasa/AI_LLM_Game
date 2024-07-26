@@ -1,9 +1,5 @@
 using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
-using UnityEditorInternal;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class BallMovement : MonoBehaviour
 {
@@ -39,6 +35,11 @@ public class BallMovement : MonoBehaviour
 
         initialPos = transform.position;
         ResetBall(true);
+    }
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape)) Application.Quit();
     }
 
     public void ResetBall(bool lvlChange)
@@ -188,7 +189,6 @@ public class BallMovement : MonoBehaviour
 
     void HandleExplosive()
     {
-        //TODO: Make explosion particles
         Instantiate(explosion, transform.position, Quaternion.identity);
     }
 
@@ -249,7 +249,6 @@ public class BallMovement : MonoBehaviour
 
     IEnumerator ReDirection()
     {
-        Debug.Log("Random Ball");
         rb.velocity = Vector3.zero;
 
         yield return new WaitForSeconds(1);
